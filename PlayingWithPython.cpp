@@ -11,13 +11,24 @@ const char *pycode =
 "        return 1\n"
 "    else:\n"
 "        return n*fact(n-1)\n"
-"k = fact(i)";
+"k = fact(i)\n";
+
+const char *plotcode =
+"from matplotlib.pyplot import*\n"
+"plot(OX, OY, label = 'Pressure drop gradient separated flow')\n"
+"#plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,\n"
+"#	ncol = 1, mode = 'expand', borderaxespad = 0.)\n"
+"ylabel('Presseure drop gradient, kPa/m')\n"
+"xlabel('Distance along the pipe, m')\n"
+"show()\n";
 
 int main()
 {
 	PyObject *main_module, *main_dict;
 	PyObject *sys_module, *sys_dict;
 	PyObject *version_obj, *i_obj, *k_obj, *syspath_obj;
+	PyObject *OY_obj, *OX_obj, *y_obj, *x_obj;
+	double x=0, y=0;
 	char *version_string,*syspath;
 	long int i, k;
 
@@ -41,11 +52,11 @@ int main()
 	Py_XDECREF(version_obj);
 
 	/*retrieve sys path from sys*/
-	//PyRun_SimpleString("path0=sys.path[0]\n");
-	syspath_obj = PyMapping_GetItemString(sys_dict, "path");
-	std::cout << syspath_obj;
-//	syspath = PyString_AsString(syspath_obj);
-//	printf("%s\n\n", syspath);
+	PyRun_SimpleString("path0=sys.path[0]\n");
+	syspath_obj = PyMapping_GetItemString(main_dict, "path0");
+//	std::cout << syspath_obj;
+	syspath = PyString_AsString(syspath_obj);
+	printf("%s\n\n", syspath);
 	Py_XDECREF(syspath_obj);
 
 	/* Inject a variable into __main__, in this case i */
@@ -65,8 +76,28 @@ int main()
 	/* Show the result of the Python calculation */
 	printf("Python calculated that %d! = %d\n", i, k);
 
-	Py_Finalize();
+	int check = 0;
+	OX_obj = PyList_New(0);
+	OY_obj = PyList_New(0);
+	for (int ii = 0; ii < 1000; ii++){
+		x += 0.01;
+		y = sin(x);
+		x_obj = PyFloat_FromDouble(x);
+		y_obj = PyFloat_FromDouble(y);
+		check = PyList_Append(OX_obj, x_obj);
+		check = PyList_Append(OY_obj, y_obj);
+	}
 
+	PyDict_SetItemString(main_dict, "OX", OX_obj);
+	PyDict_SetItemString(main_dict, "OY", OY_obj);
+
+
+	char *filename = "c:\\Onedrive\\phd\\C\\learning\\Playingwithpython\\plotting.py";
+	PyObject* PyFileObject = PyFile_FromString(filename, "r");
+	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), filename);
+//	PyRun_SimpleString(plotcode);
+
+	Py_Finalize();
 	return 0;
 }
 
