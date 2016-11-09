@@ -8,9 +8,6 @@
 #include <Windows.h>
 
 
-
-
-
 const char *pycode =
 "def fact(n):\n"
 "    if n <= 1:\n"
@@ -32,9 +29,12 @@ const char *plotcode =
 
 std::string ExePath() {
 	char buffer[MAX_PATH];
+	std::string WithRelease;
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);
 	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	return std::string(buffer).substr(0, pos);
+	WithRelease = std::string(buffer).substr(0, pos);
+	std::string::size_type pos1 = WithRelease.find_last_of("\\/");
+	return std::string(buffer).substr(0, pos1);
 }
 
 int main()
@@ -93,26 +93,45 @@ int main()
 	/* Show the result of the Python calculation */
 	printf("Python calculated that %d! = %d\n", i, k);
 
+	//plotting OY vs OX
 	int check = 0;
+	//creat OX_obj and OY_obj as python lists
 	OX_obj = PyList_New(0);
 	OY_obj = PyList_New(0);
+
+	//fill OX_obj and OY_obj
 	for (int ii = 0; ii < 1000; ii++){
 		x += 0.01;
 		y = sin(x);
+		//before adding to OX_obj, neet to convert x variable to python x_obj
 		x_obj = PyFloat_FromDouble(x);
 		y_obj = PyFloat_FromDouble(y);
 		check = PyList_Append(OX_obj, x_obj);
 		check = PyList_Append(OY_obj, y_obj);
 	}
-
+	//add list OX_obj as OX to python, now python code has OX defined, same with OY
 	PyDict_SetItemString(main_dict, "OX", OX_obj);
 	PyDict_SetItemString(main_dict, "OY", OY_obj);
 
 
+	//finding relative location of python script
+	std::string PyExec = ExePath() + "\\plotting.py";
+	std::cout << "PyExecutable "<<PyExec << std::endl;
+	
+	char * filename = new char[PyExec.size() + 1];
+	std::copy(PyExec.begin(), PyExec.end(), filename);
+	filename[PyExec.size()] = '\0'; // don't forget the terminating 0
 
-	char *filename = "c:\\onedrive\\phd\\C\\learning\\Playingwithpython\\plotting.py";
+
+
+//	char *filename = "c:\\work\\C\\learning\\Playingwithpython\\plotting.py";
+
+	//wrapper to use PyRun_SimpleFile
 	PyObject* PyFileObject = PyFile_FromString(filename, "r");
 	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), filename);
+
+	// don't forget to free the string after finished using it
+	delete[] filename;
 //	PyRun_SimpleString(plotcode);
 
 	Py_Finalize();
