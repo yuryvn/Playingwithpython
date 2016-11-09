@@ -4,6 +4,12 @@
 #include "stdafx.h"
 #include <Python.h>
 #include <iostream>
+#include <string>
+#include <Windows.h>
+
+
+
+
 
 const char *pycode =
 "def fact(n):\n"
@@ -22,8 +28,19 @@ const char *plotcode =
 "xlabel('Distance along the pipe, m')\n"
 "show()\n";
 
+//get current dir
+/*
+std::string ExePath() {
+	char buffer[MAX_PATH];
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	return std::string(buffer).substr(0, pos);
+}
+*/
 int main()
-{
+{	
+//	std::cout << "my directory is " << ExePath() << "\n";
+
 	PyObject *main_module, *main_dict;
 	PyObject *sys_module, *sys_dict;
 	PyObject *version_obj, *i_obj, *k_obj, *syspath_obj;
@@ -92,17 +109,13 @@ int main()
 	PyDict_SetItemString(main_dict, "OY", OY_obj);
 
 
-	char *filename = "c:\\Onedrive\\phd\\C\\learning\\Playingwithpython\\plotting.py";
+
+	char *filename = "c:\\learning\\C\\learning\\Playingwithpython\\plotting.py";
 	PyObject* PyFileObject = PyFile_FromString(filename, "r");
 	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), filename);
 //	PyRun_SimpleString(plotcode);
 
 	Py_Finalize();
-	return 0;
-}
-
-int _tmain(int argc, _TCHAR* argv[])
-{
 	return 0;
 }
 
