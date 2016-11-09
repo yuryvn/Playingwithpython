@@ -29,17 +29,17 @@ const char *plotcode =
 "show()\n";
 
 //get current dir
-/*
+
 std::string ExePath() {
 	char buffer[MAX_PATH];
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);
 	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
 	return std::string(buffer).substr(0, pos);
 }
-*/
+
 int main()
 {	
-//	std::cout << "my directory is " << ExePath() << "\n";
+	std::cout << "my directory is " << ExePath() << "\n";
 
 	PyObject *main_module, *main_dict;
 	PyObject *sys_module, *sys_dict;
@@ -110,7 +110,7 @@ int main()
 
 
 
-	char *filename = "c:\\learning\\C\\learning\\Playingwithpython\\plotting.py";
+	char *filename = "c:\\onedrive\\phd\\C\\learning\\Playingwithpython\\plotting.py";
 	PyObject* PyFileObject = PyFile_FromString(filename, "r");
 	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), filename);
 //	PyRun_SimpleString(plotcode);
