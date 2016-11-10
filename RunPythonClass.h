@@ -23,14 +23,15 @@ PyVariableT::~PyVariableT()
 class PyRunT
 {
 public:
-	PyRunT();
+	PyRunT(PyVariableT *InputVars, int InputVarsSize, char *filename);
 	~PyRunT();
-	PyVariableT* PyVarsList;
 private:
-
+	PyVariableT* PyVarsList;
+	int VarSize;
+	char *file;
 };
 
-PyRunT::PyRunT()
+PyRunT::PyRunT(PyVariableT *InputVars,int InputVarsSize,char *filename)
 {
 }
 
