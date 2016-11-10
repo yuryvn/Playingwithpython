@@ -1,4 +1,5 @@
 //class to run python scripts
+#include <string>
 
 class PyVariableT
 {
@@ -25,16 +26,11 @@ class PyRunT
 public:
 	PyRunT(PyVariableT *InputVars, int InputVarsSize, char *filename);
 	~PyRunT();
+	PyVariableT *PyVarsOut;
 private:
-	PyVariableT* PyVarsList;
+	PyVariableT *PyVarsInput;
 	int VarSize;
 	char *file;
+	std::string ExePath();
 };
 
-PyRunT::PyRunT(PyVariableT *InputVars,int InputVarsSize,char *filename)
-{
-}
-
-PyRunT::~PyRunT()
-{
-}
