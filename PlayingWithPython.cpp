@@ -113,6 +113,8 @@ int main()
 	PyDict_SetItemString(main_dict, "OX", OX_obj);
 	PyDict_SetItemString(main_dict, "OY", OY_obj);
 
+	Py_CLEAR(OY_obj); Py_CLEAR(OX_obj);
+
 
 	//finding relative location of python script
 	std::string PyExec = ExePath() + "\\plotting.py";
