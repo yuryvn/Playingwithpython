@@ -155,6 +155,7 @@ int main()
 	(*PCont).RunPythonScript();
 	delete PCont;
 
+	std::cout << "lalalla" << std::endl;
 
 	return 0;
 }
