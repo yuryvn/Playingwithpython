@@ -59,7 +59,15 @@ void PyRunT::RunPythonScript(){
 	/* Attach the sys module into the __main__ namespace */
 	PyDict_SetItemString(main_dict, "sys", sys_module);
 
+	//Passing all variables to python
 	VarConvertToPython(main_dict);
+
+	//Running script with wrapper to use PyRun_SimpleFile
+	PyObject* PyFileObject = PyFile_FromString(file, "r");
+	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), file);
+
+	//Retrieving output from python
+	VarConvertFromPython(main_dict);
 
 
 }
@@ -135,6 +143,88 @@ void PyRunT::VarConvertToPython(PyObject *main){
 		case 5:{//if char*
 			charPTR = static_cast<char*>((*(PyVarsInput + i)).Value);  //say that Value is actually pointing to char
 			PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), PyInt_FromLong(*intPTR));
+			break;
+			break;
+		}
+
+		default:
+			std::cout << "Unknown type when trying to convert to python";
+			break;
+		}
+	}
+}
+
+void PyRunT::VarConvertFromPython(PyObject *main){
+	//	InVarSize
+	//	InputVars
+
+	//function will update main dictionary 
+
+	long *intPTR;
+	long Length;
+	double *doublePTR;
+	char *charPTR;
+	int check;
+	PyObject *OX_obj;
+	PyObject *x_obj;
+
+	for (long i = 0; i < OutVarSize; i++){
+
+		switch ((*(PyVarsOut + i)).Type)//1- integer,2-array of int,3-double,4-array of double,5-char
+		{
+		case 1:{
+			x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+			(*(PyVarsOut + i)).Value = new long *;
+			*((long *)((*(PyVarsOut + i)).Value))=PyInt_AsLong(x_obj); //we take value, say that it is pointer to long, and then dereference it
+			Py_CLEAR(x_obj);
+			break;
+		}
+		case 2:{
+			OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+
+			//fill OX_obj
+			Length = (*(PyVarsOut + i)).ValueLength;
+			for (long ii = 0; ii < Length; ii++){
+				//Exctract x_obj, convert to int, add to C++ array;
+				x_obj = PyInt_AsLong(intPTR[ii]);
+				check = PyList_Append(OX_obj, x_obj);
+			}
+			//add list OX_obj as OX to python, now python code has OX defined, same with OY
+			PyDict_SetItemString(main, std::string((*(PyVarsOut + i)).Name).c_str(), OX_obj);
+			Py_CLEAR(OX_obj);
+			Py_CLEAR(x_obj);
+
+
+			break;
+		}
+		case 3:{//if double
+			doublePTR = static_cast<double*>((*(PyVarsOut + i)).Value);  //say that Value is actually pointing to double
+			PyDict_SetItemString(main, std::string((*(PyVarsOut + i)).Name).c_str(), PyFloat_FromDouble(*doublePTR));
+			Py_CLEAR(x_obj);
+			break;
+		}
+
+		case 4:{//if list of doubles
+			OX_obj = PyList_New(0);
+
+			doublePTR = static_cast<double*>((*(PyVarsOut + i)).Value);
+			Length = (*(PyVarsOut + i)).ValueLength;
+			//fill OX_obj
+			for (long ii = 0; ii < Length; ii++){
+				//before adding to OX_obj, neet to convert x variable to python x_obj
+				x_obj = PyFloat_FromDouble(doublePTR[ii]);
+				check = PyList_Append(OX_obj, x_obj);
+			}
+			//add list OX_obj as OX to python, now python code has OX defined, same with OY
+			PyDict_SetItemString(main, std::string((*(PyVarsOut + i)).Name).c_str(), OX_obj);
+			Py_CLEAR(OX_obj);
+			Py_CLEAR(x_obj);
+
+			break;
+		}
+		case 5:{//if char*
+			charPTR = static_cast<char*>((*(PyVarsOut + i)).Value);  //say that Value is actually pointing to char
+			PyDict_SetItemString(main, std::string((*(PyVarsOut + i)).Name).c_str(), PyInt_FromLong(*intPTR));
 			break;
 			break;
 		}
