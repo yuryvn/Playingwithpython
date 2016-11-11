@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
+#include "RunPythonClass.h"
 
 
 const char *pycode =
@@ -137,6 +138,24 @@ int main()
 //	PyRun_SimpleString(plotcode);
 
 	Py_Finalize();
+
+	double OX[1000] = {};
+	double OY[1000] = {};
+	double xx=0.01;
+	for (long i = 0; i < 1000; i++){
+		xx+=0.01;
+		OX[i] = xx;
+		OY[i] = sin(xx) / xx;
+
+	}
+
+	PyRunT *PCont = new PyRunT(2, "plotting.py", 0);
+	(*PCont).PyVarsInput[0].set(OX, "OX", 4, 1000);
+	(*PCont).PyVarsInput[1].set(OY, "OY", 4, 1000);
+	(*PCont).RunPythonScript();
+	delete PCont;
+
+
 	return 0;
 }
 

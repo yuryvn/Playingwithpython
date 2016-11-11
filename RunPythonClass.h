@@ -11,21 +11,10 @@ public:
 	int Type;//1- integer,2-array of int,3-double,4-array of double,5-char
 	void *Value;
 	long ValueLength;
+	void set(void *V = nullptr, char* N = "x", int T = 1, long VL = 1);
 private:
 
 };
-
-PyVariableT::PyVariableT(void *V,char* N , int T,long VL)
-{
-	Name = N;
-	Value = V;
-	Type = T;
-	ValueLength = VL;
-}
-
-PyVariableT::~PyVariableT()
-{
-}
 
 class PyRunT
 {

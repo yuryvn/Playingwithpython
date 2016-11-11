@@ -25,6 +25,11 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=1, mode="expand", borderaxespad=0.)
 ylabel('Presseure drop gradient, kPa/m')
 xlabel('Distance along the pipe, m')
+
+
+
+print "if OX is list", isinstance(OX, list)
+ 
 #subplot(212)
 #plot(OX,VoidFractionSep,label="Void fraction separated flow")
 #plot(OX,VoidFractionHomo,label="Void fraction homogeneous flow")
