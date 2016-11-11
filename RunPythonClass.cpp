@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include <Windows.h>
-#include <stack>
 
 PyVariableT::PyVariableT(void *V, char* N, int T, long VL)
 {
@@ -27,31 +26,18 @@ void PyVariableT::set(void *V, char* N, int T, long VL){
 
 
 PyRunT::PyRunT(int InputVarsSize, char *Pyfilename, int OutputVarSize) :PyVarsInput(new PyVariableT[InputVarsSize]), PyVarsOut(new PyVariableT[OutputVarSize])
-{
+{	
 	Py_Initialize();
 	InVarSize = InputVarsSize;
 	OutVarSize = OutputVarSize;
-
-	//finding relative location of python script
-	std::string PyExec = ExePath() + "\\"+ std::string(Pyfilename);
-	std::cout << "PyExecutable " << PyExec << std::endl;
-
-	char * filename = new char[PyExec.size() + 1];
-	std::copy(PyExec.begin(), PyExec.end(), filename);
-	filename[PyExec.size()] = '\0'; // don't forget the terminating 0
+	file = Pyfilename;
 	
-	file = filename;
-
-	std::cout << file << std::endl;
-	delete[] filename;
-
 }
 
 PyRunT::~PyRunT()
 {
 	delete []PyVarsOut;
 	delete[]PyVarsInput;
-	Py_Finalize();
 }
 
 std::string PyRunT::ExePath() {
@@ -83,9 +69,38 @@ void PyRunT::RunPythonScript(){
 	//Passing all variables to python
 	VarConvertToPython(main_dict);
 
+
+	
+
+	std::cout << "checking input\n";
+	std::cout << "Name=" << (*(PyVarsInput + 1)).Name << std::endl;
+	PyObject* CHECK_obj = PyDict_GetItemString(main_dict, (*(PyVarsInput + 1)).Name);
+	PyObject* check_obj = PyList_GetItem(CHECK_obj, 500); //just to initialize
+	std::cout << "Value of 500th element=" << (double)PyFloat_AsDouble(check_obj) << std::endl;
+
+
+
+	//finding relative location of python script
+	std::string PyExec = ExePath() + "\\" + std::string(file);
+	std::cout << "PyExecutable " << PyExec << std::endl;
+	char * filename = new char[PyExec.size() + 1];
+	std::copy(PyExec.begin(), PyExec.end(), filename);
+	filename[PyExec.size()] = '\0'; // don't forget the terminating 0
+
 	//Running script with wrapper to use PyRun_SimpleFile
-	PyObject* PyFileObject = PyFile_FromString(file, "r");
-	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), file);
+
+	PyObject* PFO = PyFile_FromString(filename, "r");
+	std::cout << "running script inside class\n";
+
+
+	const char *importcode =
+		"from numpy import linspace as linspace\n"
+		"from matplotlib.pyplot import*\n"
+		"from pylab import*\n";
+
+	//PyRun_SimpleString(importcode);
+
+	PyRun_SimpleFile(PyFile_AsFile(PFO), filename);
 
 	//Retrieving output from python
 	VarConvertFromPython(main_dict);
@@ -193,8 +208,7 @@ void PyRunT::VarConvertFromPython(PyObject *main){
 		{
 		case 1:{
 			x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
-			(*(PyVarsOut + i)).Value = new long(PyInt_AsLong(x_obj)); //allocate memory for new variable and set .value to point to this memory block
-//			*((long *)((*(PyVarsOut + i)).Value))=(long)PyInt_AsLong(x_obj); //we take value, say that it is pointer to long, and then dereference it
+			*((long *)((*(PyVarsOut + i)).Value))=(long)PyInt_AsLong(x_obj); //we take value, say that it is pointer to long, and then dereference it
 			Py_CLEAR(x_obj);
 			break;
 		}
@@ -203,7 +217,6 @@ void PyRunT::VarConvertFromPython(PyObject *main){
 			x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
 			//fill OX_obj
 			Length = (*(PyVarsOut + i)).ValueLength;
-			(*(PyVarsOut + i)).Value = new long[Length];
 			for (long ii = 0; ii < Length; ii++){
 				//Exctract x_obj, convert to int, add to C++ array;
 				x_obj = PyList_GetItem(OX_obj,ii);
@@ -218,8 +231,7 @@ void PyRunT::VarConvertFromPython(PyObject *main){
 		}
 		case 3:{//if double
 			x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
-			(*(PyVarsOut + i)).Value = new double(PyFloat_AsDouble(x_obj)); //allocate memory for new variable and set .value to point to this memory block
-//			*((double *)((*(PyVarsOut + i)).Value)) = (double)PyFloat_AsDouble(x_obj); //we take value, say that it is pointer to long, and then dereference it
+			*((double *)((*(PyVarsOut + i)).Value)) = double(PyFloat_AsDouble(x_obj)); //make void pointer to be pointer to double, dereference,and assign number
 			Py_CLEAR(x_obj);
 			break;
 		}
@@ -231,13 +243,12 @@ void PyRunT::VarConvertFromPython(PyObject *main){
 
 			//fill OX_obj
 			Length = (*(PyVarsOut + i)).ValueLength;
-			(*(PyVarsOut + i)).Value = new double[Length];
+
 			for (long ii = 0; ii < Length; ii++){
 				//Exctract x_obj, convert to int, add to C++ array;
 				x_obj = PyList_GetItem(OX_obj, ii);
-				((double *)(*(PyVarsOut + i)).Value)[ii] = (double)PyFloat_AsDouble(x_obj);
+				((double *)((*(PyVarsOut + i)).Value))[ii] = (double)PyFloat_AsDouble(x_obj);
 			}
-			//add list OX_obj as OX to python, now python code has OX defined, same with OY
 			Py_CLEAR(OX_obj);
 			Py_CLEAR(x_obj);
 
@@ -245,10 +256,13 @@ void PyRunT::VarConvertFromPython(PyObject *main){
 		}
 		case 5:{//if char*
 
+			Length = (*(PyVarsOut + i)).ValueLength;
 			x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
-			(*(PyVarsOut + i)).Value = new char*(PyString_AsString(x_obj)); //allocate memory for new variable and set .value to point to this memory block
-	
+			
+			strcpy_s((char *)((*(PyVarsOut + i)).Value), Length, PyString_AsString(x_obj));
+			
 			Py_CLEAR(x_obj);
+			
 			break;
 		}
 

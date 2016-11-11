@@ -132,16 +132,17 @@ int main()
 	//wrapper to use PyRun_SimpleFile
 	PyObject* PyFileObject = PyFile_FromString(filename, "r");
 	PyRun_SimpleFile(PyFile_AsFile(PyFileObject), filename);
+	delete[] filename;
 
 	// don't forget to free the string after finished using it
-	delete[] filename;
+
 //	PyRun_SimpleString(plotcode);
 
-	Py_Finalize();
+
 
 	double OX[1000] = {};
 	double OY[1000] = {};
-	double xx=0.01;
+	double xx=0.00;
 	for (long i = 0; i < 1000; i++){
 		xx+=0.01;
 		OX[i] = xx;
@@ -149,14 +150,33 @@ int main()
 
 	}
 
-	PyRunT *PCont = new PyRunT(2, "plotting.py", 0);
+	PyRunT *PCont = new PyRunT(2, "plotting.py", 1);
 	(*PCont).PyVarsInput[0].set(OX, "OX", 4, 1000);
 	(*PCont).PyVarsInput[1].set(OY, "OY", 4, 1000);
+
+	
+	char OZ[40];
+	(*PCont).PyVarsOut[0].set(OZ, "string", 5, 40);
+
+	/*checking variables
+	std::cout << (*PCont).PyVarsInput[1].Name << std::endl;
+	std::cout << (*PCont).PyVarsInput[1].ValueLength << std::endl;
+	std::cout << (*PCont).PyVarsInput[1].Type << std::endl;
+	std::cout << ((double *)((*PCont).PyVarsInput[1].Value))[500] << std::endl;
+	*/
 	(*PCont).RunPythonScript();
+
+	std::cout << OZ << std::endl;
+	/*
+	for (int k = 0; k < 10; k++)
+	{
+		
+		std::cout <<"Name="<< (*PCont).PyVarsOut[0].Name << std::endl<< " Type=";
+		std::cout << (*PCont).PyVarsOut[0].Type << " OZelement=" << OZ[k] << std::endl;
+	}
+	*/
 	delete PCont;
-
-	std::cout << "lalalla" << std::endl;
-
+	Py_Finalize();
 	return 0;
 }
 

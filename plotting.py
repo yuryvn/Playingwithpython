@@ -1,3 +1,7 @@
+#print "I am here"
+
+print "Starting to import"
+
 from numpy import linspace as linspace
 from matplotlib.pyplot import*
 from pylab import *
@@ -14,8 +18,7 @@ def plotting(f,a,b):
     show()
     return
 
-print "I am here"	
-	
+string="string"
 #OY=array(OY)	
 #OX=array(OX)
 #subplot(211)
