@@ -27,15 +27,18 @@
     <ClInclude Include="RunPythonClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="YuryLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlayingWithPython.cpp">
+    <ClCompile Include="RunPythonClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RunPythonClass.cpp">
+    <ClCompile Include="YuryLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

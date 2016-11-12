@@ -1,7 +1,3 @@
-#print "I am here"
-
-print "Starting to import"
-
 from numpy import linspace as linspace
 from matplotlib.pyplot import*
 from pylab import *
