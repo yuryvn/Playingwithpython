@@ -1,6 +1,8 @@
 //class to run python scripts
 #pragma once
-#ifdef YURYLIBRARY_EXPORTS
+
+#pragma once
+#ifdef BUILDASDLL
 #define YURYLIBRARY_API_ __declspec(dllexport)
 #else
 #define YURYLIBRARY_API_ __declspec(dllimport)
@@ -16,7 +18,7 @@
 namespace YuryLibrary{
 
 
-	class PyVariableT
+	class YURYLIBRARY_API_ PyVariableT
 	{
 	public:
 		PyVariableT(void *V = nullptr, char* N = "x", int T = 1, long VL = 1);
@@ -30,7 +32,7 @@ namespace YuryLibrary{
 
 	};
 
-	class PyRunT
+	class YURYLIBRARY_API_ PyRunT
 	{
 	public:
 		PyRunT(int InputVarsSize, char *Pyfilename, int OutputVarSize);

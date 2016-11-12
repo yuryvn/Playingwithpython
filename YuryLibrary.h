@@ -1,5 +1,5 @@
 #pragma once
-#ifdef YURYLIBRARY_EXPORTS
+#ifdef BUILDASDLL
 #define YURYLIBRARY_API_ __declspec(dllexport)
 #else
 #define YURYLIBRARY_API_ __declspec(dllimport)
