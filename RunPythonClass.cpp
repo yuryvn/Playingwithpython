@@ -113,6 +113,39 @@ namespace YuryLibrary {
 
 	}
 
+	void PyRunT::RunPythonScript(const char *importcode){
+
+		PyObject *main_module, *main_dict;
+		PyObject *sys_module, *sys_dict;
+
+		/* Setup the __main__ module for us to use */
+		main_module = PyImport_ImportModule("__main__");
+		main_dict = PyModule_GetDict(main_module);
+
+		/* Fetch the sys module */
+		sys_module = PyImport_ImportModule("sys");
+		sys_dict = PyModule_GetDict(sys_module);
+		/* Attach the sys module into the __main__ namespace */
+		PyDict_SetItemString(main_dict, "sys", sys_module);
+
+		//Passing all variables to python
+		VarConvertToPython(main_dict);
+
+
+		
+		//	const char *importcode =
+		//		"from numpy import linspace as linspace\n"
+		//		"from matplotlib.pyplot import*\n"
+		//		"from pylab import*\n";
+
+		PyRun_SimpleString(importcode);
+
+		//Retrieving output from python
+		VarConvertFromPython(main_dict);
+
+
+	}
+
 	void PyRunT::VarConvertToPython(PyObject *main){
 
 		//function will update main dictionary 

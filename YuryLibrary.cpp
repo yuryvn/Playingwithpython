@@ -15,15 +15,28 @@ const char *pycode =
 "        return n*fact(n-1)\n"
 "k = fact(i)\n";
 
+*/
+
 const char *plotcode =
+"from pylab import*\n"
 "from matplotlib.pyplot import*\n"
 "plot(OX, OY, label = 'Pressure drop gradient separated flow')\n"
-"#plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,\n"
-"#	ncol = 1, mode = 'expand', borderaxespad = 0.)\n"
+"plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,\n"
+"	ncol = 1, mode = 'expand', borderaxespad = 0.)\n"
 "ylabel('Presseure drop gradient, kPa/m')\n"
 "xlabel('Distance along the pipe, m')\n"
 "show()\n";
 
+
+
+
+//	const char *importcode =
+//		"from numpy import linspace as linspace\n"
+//		"from matplotlib.pyplot import*\n"
+//		"from pylab import*\n";
+
+
+/*
 //get current dir
 
 std::string ExePath() {
@@ -149,13 +162,13 @@ int main()
 
 	}
 
-	YuryLibrary::PyRunT *PCont = new YuryLibrary::PyRunT(2, "plotting.py", 1);
+	YuryLibrary::PyRunT *PCont = new YuryLibrary::PyRunT(2, "plotting.py", 0);
 	(*PCont).PyVarsInput[0].set(OX, "OX", 4, 1000);
 	(*PCont).PyVarsInput[1].set(OY, "OY", 4, 1000);
 
 	
-	char OZ[40];
-	(*PCont).PyVarsOut[0].set(OZ, "string", 5, 40);
+	//char OZ[40];
+	//(*PCont).PyVarsOut[0].set(OZ, "string", 5, 40);
 
 	/*checking variables
 	std::cout << (*PCont).PyVarsInput[1].Name << std::endl;
@@ -164,8 +177,19 @@ int main()
 	std::cout << ((double *)((*PCont).PyVarsInput[1].Value))[500] << std::endl;
 	*/
 	(*PCont).RunPythonScript();
+	(*PCont).RunPythonScript(plotcode);
 
-	std::cout << OZ << std::endl;
+
+	YuryLibrary::PyRunT *PCont1 = new YuryLibrary::PyRunT(3, "plotting2.py", 0);
+	(*PCont1).PyVarsInput[0].set(OX, "OX1", 4, 1000);
+	(*PCont1).PyVarsInput[1].set(OY, "OY1", 4, 1000);
+	(*PCont1).PyVarsInput[2].set(OY, "OZ1", 4, 1000);
+
+	(*PCont1).RunPythonScript();
+	(*PCont1).RunPythonScript(plotcode);
+
+
+	//std::cout << OZ << std::endl;
 	/*
 	for (int k = 0; k < 10; k++)
 	{
@@ -175,7 +199,7 @@ int main()
 	}
 	*/
 	delete PCont;
-	Py_Finalize();
+	//Py_Finalize();
 	return 0;
 }
 

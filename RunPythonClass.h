@@ -1,11 +1,9 @@
 //class to run python scripts
 #pragma once
-
-#pragma once
 #ifdef BUILDASDLL
 #define YURYLIBRARY_API_ __declspec(dllexport)
 #else
-#define YURYLIBRARY_API_ __declspec(dllimport)
+#define YURYLIBRARY_API_//__declspec(dllimport) would be if want static lib, nothing for building exe file
 #endif
 
 #include "stdafx.h"
@@ -39,6 +37,7 @@ namespace YuryLibrary{
 		~PyRunT();
 		PyVariableT *PyVarsOut;
 		void RunPythonScript();
+		void RunPythonScript(const char *importcode);
 		PyVariableT *PyVarsInput;
 	private:
 		int InVarSize, OutVarSize;
