@@ -39,6 +39,7 @@ namespace YuryLibrary{
 		void RunPythonScript();
 		void RunPythonScript(const char *importcode);
 		PyVariableT *PyVarsInput;
+		void setFile(char *PyfileName);
 	private:
 		int InVarSize, OutVarSize;
 		char *file;

@@ -54,6 +54,9 @@ namespace YuryLibrary {
 		return std::string(buffer).substr(0, pos1);
 	}
 
+	void PyRunT::setFile(char *PyfileName){
+		file = PyfileName;
+	}
 
 	void PyRunT::RunPythonScript(){
 
