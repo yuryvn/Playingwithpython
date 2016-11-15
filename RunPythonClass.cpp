@@ -115,6 +115,36 @@ namespace YuryLibrary {
 
 
 	}
+	void PyRunT::RunPythonScript(const int clearflag){
+
+		PyObject *main_module, *main_dict;
+		PyObject *sys_module, *sys_dict;
+
+		/* Setup the __main__ module for us to use */
+		main_module = PyImport_ImportModule("__main__");
+		main_dict = PyModule_GetDict(main_module);
+
+		/* Fetch the sys module */
+		sys_module = PyImport_ImportModule("sys");
+		sys_dict = PyModule_GetDict(sys_module);
+		/* Attach the sys module into the __main__ namespace */
+		PyDict_SetItemString(main_dict, "sys", sys_module);
+
+		//finding relative location of python script
+		std::string PyExec = ExePath() + "\\" + std::string(file);
+		std::cout << "PyExecutable " << PyExec << std::endl;
+		char * filename = new char[PyExec.size() + 1];
+		std::copy(PyExec.begin(), PyExec.end(), filename);
+		filename[PyExec.size()] = '\0'; // don't forget the terminating 0
+
+		//Running script with wrapper to use PyRun_SimpleFile
+
+		PyObject* PFO = PyFile_FromString(filename, "r");
+
+		PyRun_SimpleFile(PyFile_AsFile(PFO), filename);
+
+		
+	}
 
 	void PyRunT::RunPythonScript(const char *importcode){
 

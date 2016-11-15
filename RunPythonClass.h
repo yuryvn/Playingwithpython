@@ -38,6 +38,7 @@ namespace YuryLibrary{
 		PyVariableT *PyVarsOut;
 		void RunPythonScript();
 		void RunPythonScript(const char *importcode);
+		void RunPythonScript(const int clearflag);
 		PyVariableT *PyVarsInput;
 		void setFile(char *PyfileName);
 	private:
