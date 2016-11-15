@@ -7,16 +7,16 @@ from numpy import linspace as linspace
 from matplotlib.pyplot import*
 from scipy.optimize import curve_fit as curve_fit
 
-print "I am here1"
+#print "I am here1"
 print "Generating with SIZE=",SIZE,"Shape=",alpha,"Bound=",loc,"Scale=",beta
-print "I am here2"
+#print "I am here2"
 SIZE=SIZE+1
 #alpha = 5.
 #loc = 2.
 #beta = 20
-print "I am here3"
+#print "I am here3"
 data2=2
-print "I am here4"
+#print "I am here4"
 data = gamma.rvs(alpha, loc=loc, scale=beta, size=SIZE)  
   
 data.sort()
@@ -25,8 +25,8 @@ MaxMolarMass=data[SIZE-1]*1.5
 
 
 
-print "Molar Masses"
-print(data)
+#print "Molar Masses"
+#print(data)
 
 MassFractions=[]
 MolarMasses=[]
@@ -42,6 +42,7 @@ MolarMassAve=quad(MolarMassIntegrand,0.,MaxMolarMass,args=pargs)[0]
 
 TotalMass=0
 
+#print "here?"
 for i in range(SIZE-1):
 	MolarMasses.append(UpperBoundMolarMass[i])
 #	print MolarMasses[i],UpperBoundMolarMass[i+1]
@@ -49,16 +50,17 @@ for i in range(SIZE-1):
 #	print "molesfraction=",Int1
 	Int2=quad(MolarMassIntegrand,MolarMasses[i],UpperBoundMolarMass[i+1],args=pargs)[0]/Int1
 #	print "Molarmasses",Int2
+	print i
 	MolFractions.append(Int1)
 	MassFractions.append(Int1*Int2/MolarMassAve)
 	TotalMass=TotalMass+Int1*Int2/MolarMassAve
 
 
+#print "here?"
 
-
-print "sum of gamma", quad(gamma.pdf,0.,MaxMolarMass,args=pargs)[0]
-print "Total sum of MassFractions=",TotalMass
-print "MolarMassAve=",MolarMassAve
+#print "sum of gamma", quad(gamma.pdf,0.,MaxMolarMass,args=pargs)[0]
+#print "Total sum of MassFractions=",TotalMass
+#print "MolarMassAve=",MolarMassAve
 
 OX=linspace(0.,MaxMolarMass,1000)
 OY=[gamma.pdf(x,alpha, loc=loc, scale=beta) for x in OX]
@@ -88,9 +90,9 @@ xlabel('Molar Mass')
 show()
 
 
-print "Mass Fractions Size=",len(MassFractions),"MassFractions"
-print MassFractions	
-print "Mol Fractions"
-print MolFractions
-print MolarMasses
-print "data", data
+#print "Mass Fractions Size=",len(MassFractions),"MassFractions"
+#print MassFractions	
+#print "Mol Fractions"
+#print MolFractions
+#print MolarMasses
+#print "data", data

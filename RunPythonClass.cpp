@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RunPythonClass.h"
+#include <Windows.h>
 
 /*
 #include "Python.h"
@@ -59,7 +60,7 @@ namespace YuryLibrary {
 	}
 
 	void PyRunT::RunPythonScript(){
-
+		Py_Initialize();
 		PyObject *main_module, *main_dict;
 		PyObject *sys_module, *sys_dict;
 
@@ -109,11 +110,9 @@ namespace YuryLibrary {
 		//PyRun_SimpleString(importcode);
 
 		PyRun_SimpleFile(PyFile_AsFile(PFO), filename);
-
 		//Retrieving output from python
 		VarConvertFromPython(main_dict);
-
-
+		//Py_Finalize();
 	}
 	void PyRunT::RunPythonScript(const int clearflag){
 
@@ -142,7 +141,6 @@ namespace YuryLibrary {
 		PyObject* PFO = PyFile_FromString(filename, "r");
 
 		PyRun_SimpleFile(PyFile_AsFile(PFO), filename);
-
 		
 	}
 
@@ -267,89 +265,93 @@ namespace YuryLibrary {
 
 
 		//function will update main dictionary 
-
+		std::cout << "in convert?";
 		long Length;
-		int checklist,check;
-		PyObject *OX_obj, *OX_saved;
+	//	int checklist,check;
+		PyObject *OX_obj;// *OX_saved;
 		PyObject *x_obj;
+		PyObject *DictCopy;
 
 		for (long i = 0; i < OutVarSize; i++){
-
+			DictCopy = PyDict_Copy(main);
 			switch ((*(PyVarsOut + i)).Type)//1- integer,2-array of int,3-double,4-array of double,5-char
 			{
 			case 1:{
-				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+				x_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);
 				*((long *)((*(PyVarsOut + i)).Value)) = (long)PyInt_AsLong(x_obj); //we take value, say that it is pointer to long, and then dereference it
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
+		//		PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 				break;
 			}
 			case 2:{ //see comments for case 4
-				OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+				OX_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);
 				Length = (*(PyVarsOut + i)).ValueLength;
-				OX_saved = PyList_New(Length);
+			//	OX_saved = PyList_New(Length);
 
 				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
 				((long *)((*(PyVarsOut + i)).Value))[0] = (long)PyInt_AsLong(x_obj);
-				check = PyList_Append(OX_saved, x_obj);
+				//check = PyList_Append(OX_saved, x_obj);
 				
 				for (long ii = 1; ii < Length; ii++){
 					//Exctract x_obj, convert to int, add to C++ array;
 					x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
 					((long *)((*(PyVarsOut + i)).Value))[0] = (long)PyInt_AsLong(x_obj);
-					check = PyList_Append(OX_saved, x_obj);
+					//check = PyList_Append(OX_saved, x_obj);
 				}
-				PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
+			//	PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
+			//	PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
 				Py_CLEAR(OX_obj);
-				Py_CLEAR(OX_saved);
+			//	Py_CLEAR(OX_saved);
 				Py_CLEAR(x_obj);
 
 
 				break;
 			}
 			case 3:{//if double
-				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+				x_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);
 				*((double *)((*(PyVarsOut + i)).Value)) = double(PyFloat_AsDouble(x_obj)); //make void pointer to be pointer to double, dereference,and assign number
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
+		//		PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 				break;
 			}
 
 			case 4:{//if list of doubles
-
-				OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);//load list obj, note that list is removed from dictionary after this command
+				DictCopy = PyDict_Copy(main);
+	//			std::cout << "in convert2?";
+				OX_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);//load list obj, note that list is removed from dictionary after this command
 				Length = (*(PyVarsOut + i)).ValueLength;//get length
-				OX_saved = PyList_New(Length);//make a new list that will be equal to OX_obj, we will load it back to dictionary after
+	//			OX_saved = PyList_New(Length);//make a new list that will be equal to OX_obj, we will load it back to dictionary after
 
 				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize, this item is removed from OX_obj
 				((double *)((*(PyVarsOut + i)).Value))[0] = (double)PyFloat_AsDouble(x_obj); //start to fill output
-				check = PyList_Append(OX_saved, x_obj);//append new list with item extracted
+	//			check = PyList_Append(OX_saved, x_obj);//append new list with item extracted
 
 				//now, after all objects initialized we can continue in loop
 				for (long ii = 1; ii < Length; ii++){
 					//Exctract x_obj, convert to int, add to C++ array;
 					x_obj = PyList_GetItem(OX_obj, ii);
 					((double *)((*(PyVarsOut + i)).Value))[ii] = (double)PyFloat_AsDouble(x_obj);
-					check = PyList_Append(OX_saved, x_obj);
+		//			check = PyList_Append(OX_saved, x_obj);
 				}
-				checklist = PyList_Check(OX_saved);
+
+			//	checklist = PyList_Check(OX_saved);
 	//			std::cout << "OX, is it a list? " << checklist << std::endl;
-				PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
+		//		PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
+		//		PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
 				Py_CLEAR(OX_obj);
-				Py_CLEAR(OX_saved);
+				//Py_CLEAR(OX_saved);
 				Py_CLEAR(x_obj);
+				//Py_CLEAR(DictCopy);
 
 				break;
 			}
 			case 5:{//if char*
 
 				Length = (*(PyVarsOut + i)).ValueLength;
-				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
+				x_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);
 
 				strcpy_s((char *)((*(PyVarsOut + i)).Value), Length, PyString_AsString(x_obj));
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
+	//			PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 
 				break;

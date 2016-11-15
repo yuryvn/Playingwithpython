@@ -202,7 +202,7 @@ int main()
 	}
 	*/
 //	delete PCont;
-const int PointsAmount = 42;
+const int PointsAmount = 30;
 
 	std::cout << "generating sample using python, note it is not changing saved gamma parameters, to set/save the parameters use setGammaParameters function" << std::endl;
 
@@ -236,11 +236,11 @@ const int PointsAmount = 42;
 	(*RP).PyVarsOut[2].set(MassFrac, "MassFractions", 4, SIZE);
 	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4, SIZE);
 
-
-
+	(*RP).RunPythonScript();
+	(*RP).RunPythonScript();
 	(*RP).RunPythonScript();
 	//(*RP).RunPythonScript(str);
-	for (int i = 0; i < SIZE; std::cout << MolFrac[i++] << " ");
+	//for (int i = 0; i < SIZE; std::cout << MolFrac[i++] << " ");
 
 	(*RP).setFile("MolarMassGenerating_Capi_clearVars.py");//file to clear vars
 	std::cout << "ready to clear vars";
