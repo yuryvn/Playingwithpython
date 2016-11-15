@@ -254,9 +254,10 @@ namespace YuryLibrary {
 
 			}
 
-			default:
+			default:{
 				std::cout << "Unknown type when trying to convert to python";
 				break;
+			}
 			}
 		}
 	}
@@ -342,6 +343,7 @@ namespace YuryLibrary {
 				//Py_CLEAR(OX_saved);
 				Py_CLEAR(x_obj);
 				//Py_CLEAR(DictCopy);
+				
 
 				break;
 			}
@@ -357,10 +359,11 @@ namespace YuryLibrary {
 				break;
 			}
 
-			default:
+			default:{
 				std::cout << "Unknown type when trying to convert to python";
-				break;
+				break; }
 			}
+			PyDict_Clear(DictCopy);
 		}
 	}
 }

@@ -202,7 +202,7 @@ int main()
 	}
 	*/
 //	delete PCont;
-const int PointsAmount = 30;
+const int PointsAmount = 100;
 
 	std::cout << "generating sample using python, note it is not changing saved gamma parameters, to set/save the parameters use setGammaParameters function" << std::endl;
 
@@ -237,8 +237,7 @@ const int PointsAmount = 30;
 	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4, SIZE);
 
 	(*RP).RunPythonScript();
-	(*RP).RunPythonScript();
-	(*RP).RunPythonScript();
+
 	//(*RP).RunPythonScript(str);
 	//for (int i = 0; i < SIZE; std::cout << MolFrac[i++] << " ");
 
