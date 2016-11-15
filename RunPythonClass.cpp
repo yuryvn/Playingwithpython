@@ -325,7 +325,7 @@ namespace YuryLibrary {
 				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize, this item is removed from OX_obj
 				((double *)((*(PyVarsOut + i)).Value))[0] = (double)PyFloat_AsDouble(x_obj); //start to fill output
 				check = PyList_Append(OX_saved, x_obj);//append new list with item extracted
-				
+
 				//now, after all objects initialized we can continue in loop
 				for (long ii = 1; ii < Length; ii++){
 					//Exctract x_obj, convert to int, add to C++ array;
@@ -334,7 +334,7 @@ namespace YuryLibrary {
 					check = PyList_Append(OX_saved, x_obj);
 				}
 				checklist = PyList_Check(OX_saved);
-				std::cout << "OX, is it a list? " << checklist << std::endl;
+	//			std::cout << "OX, is it a list? " << checklist << std::endl;
 				PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
 				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
 				Py_CLEAR(OX_obj);

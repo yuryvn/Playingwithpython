@@ -232,9 +232,9 @@ const int PointsAmount = 42;
 	(*RP).PyVarsInput[3].set(&SIZE, "SIZE", 1);
 
 	(*RP).PyVarsOut[0].set(&Mave, "MolarMassAve", 3);
-	(*RP).PyVarsOut[1].set(MolMas, "MolarMasses", 4);
-	(*RP).PyVarsOut[2].set(MassFrac, "MassFractions", 4);
-	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4);
+	(*RP).PyVarsOut[1].set(MolMas, "MolarMasses", 4,SIZE);
+	(*RP).PyVarsOut[2].set(MassFrac, "MassFractions", 4, SIZE);
+	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4, SIZE);
 
 
 
