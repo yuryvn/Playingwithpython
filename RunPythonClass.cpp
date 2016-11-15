@@ -279,6 +279,7 @@ namespace YuryLibrary {
 			case 1:{
 				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
 				*((long *)((*(PyVarsOut + i)).Value)) = (long)PyInt_AsLong(x_obj); //we take value, say that it is pointer to long, and then dereference it
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 				break;
 			}
@@ -292,6 +293,7 @@ namespace YuryLibrary {
 					x_obj = PyList_GetItem(OX_obj, ii);
 					((long *)(*(PyVarsOut + i)).Value)[ii] = (long)PyInt_AsLong(x_obj);
 				}
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_obj);
 				//add list OX_obj as OX to python, now python code has OX defined, same with OY
 				Py_CLEAR(OX_obj);
 				Py_CLEAR(x_obj);
@@ -302,6 +304,7 @@ namespace YuryLibrary {
 			case 3:{//if double
 				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
 				*((double *)((*(PyVarsOut + i)).Value)) = double(PyFloat_AsDouble(x_obj)); //make void pointer to be pointer to double, dereference,and assign number
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 				break;
 			}
@@ -319,6 +322,7 @@ namespace YuryLibrary {
 					x_obj = PyList_GetItem(OX_obj, ii);
 					((double *)((*(PyVarsOut + i)).Value))[ii] = (double)PyFloat_AsDouble(x_obj);
 				}
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_obj);
 				Py_CLEAR(OX_obj);
 				Py_CLEAR(x_obj);
 
@@ -330,7 +334,7 @@ namespace YuryLibrary {
 				x_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
 
 				strcpy_s((char *)((*(PyVarsOut + i)).Value), Length, PyString_AsString(x_obj));
-
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, x_obj);
 				Py_CLEAR(x_obj);
 
 				break;
