@@ -152,6 +152,8 @@ int main()
 
 
 */
+
+/*
 	double OX[1000] = {};
 	double OY[1000] = {};
 	double xx=0.00;
@@ -166,7 +168,7 @@ int main()
 	(*PCont).PyVarsInput[0].set(OX, "OX", 4, 1000);
 	(*PCont).PyVarsInput[1].set(OY, "OY", 4, 1000);
 
-	
+	*/
 	//char OZ[40];
 	//(*PCont).PyVarsOut[0].set(OZ, "string", 5, 40);
 
@@ -176,6 +178,7 @@ int main()
 	std::cout << (*PCont).PyVarsInput[1].Type << std::endl;
 	std::cout << ((double *)((*PCont).PyVarsInput[1].Value))[500] << std::endl;
 	*/
+/*
 	(*PCont).RunPythonScript();
 	(*PCont).RunPythonScript(plotcode);
 
@@ -188,7 +191,7 @@ int main()
 	(*PCont1).RunPythonScript();
 	(*PCont1).RunPythonScript(plotcode);
 
-
+	*/
 	//std::cout << OZ << std::endl;
 	/*
 	for (int k = 0; k < 10; k++)
@@ -198,7 +201,54 @@ int main()
 		std::cout << (*PCont).PyVarsOut[0].Type << " OZelement=" << OZ[k] << std::endl;
 	}
 	*/
-	delete PCont;
+//	delete PCont;
+const int PointsAmount = 42;
+
+	std::cout << "generating sample using python, note it is not changing saved gamma parameters, to set/save the parameters use setGammaParameters function" << std::endl;
+
+	YuryLibrary::PyRunT *RP = new YuryLibrary::PyRunT(4, "MolarMassGenerating_Capi.py", 4);
+	int SIZE = PointsAmount;
+	double Mave = 0, Shape = 2.0, Bound = 30., Scale = 20.;
+	double *MolMas, *MolFrac, *MassFrac;
+	char *str = "print 'test string'\n";
+
+	MolMas = new double[SIZE];
+	MolFrac = new double[SIZE];
+	MassFrac = new double[SIZE];
+
+	const char *plotcode =
+		"import numpy\n"
+		"import matplotlib.pylab as plt\n"
+		"from scipy.integrate import quad\n"
+		"from scipy.stats import gamma as gamma\n"
+		"from numpy import linspace as linspace\n"
+		"from matplotlib.pyplot import*\n"
+		"from scipy.optimize import curve_fit as curve_fit\n"
+		"data = gamma.rvs(alpha, loc=loc, scale=beta, size=SIZE)\n";
+
+	(*RP).PyVarsInput[0].set(&Shape, "alpha", 3);
+	(*RP).PyVarsInput[1].set(&Bound, "loc", 3);
+	(*RP).PyVarsInput[2].set(&Scale, "beta", 3);
+	(*RP).PyVarsInput[3].set(&SIZE, "SIZE", 1);
+
+	(*RP).PyVarsOut[0].set(&Mave, "MolarMassAve", 3);
+	(*RP).PyVarsOut[1].set(MolMas, "MolarMasses", 4);
+	(*RP).PyVarsOut[2].set(MassFrac, "MassFractions", 4);
+	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4);
+
+
+
+	(*RP).RunPythonScript();
+	//(*RP).RunPythonScript(str);
+	for (int i = 0; i < SIZE; std::cout << MolFrac[i++] << " ");
+
+	(*RP).setFile("MolarMassGenerating_Capi_clearVars.py");//file to clear vars
+	std::cout << "ready to clear vars";
+	(*RP).RunPythonScript(0);//running file to clear vars from dict
+
+	delete RP;
+
+
 	//Py_Finalize();
 	return 0;
 }

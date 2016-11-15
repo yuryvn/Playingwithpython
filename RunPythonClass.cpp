@@ -269,7 +269,8 @@ namespace YuryLibrary {
 		//function will update main dictionary 
 
 		long Length;
-		PyObject *OX_obj;
+		int checklist,check;
+		PyObject *OX_obj, *OX_saved;
 		PyObject *x_obj;
 
 		for (long i = 0; i < OutVarSize; i++){
@@ -283,19 +284,25 @@ namespace YuryLibrary {
 				Py_CLEAR(x_obj);
 				break;
 			}
-			case 2:{
+			case 2:{ //see comments for case 4
 				OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
-				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
-				//fill OX_obj
 				Length = (*(PyVarsOut + i)).ValueLength;
-				for (long ii = 0; ii < Length; ii++){
+				OX_saved = PyList_New(Length);
+
+				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
+				((long *)((*(PyVarsOut + i)).Value))[0] = (long)PyInt_AsLong(x_obj);
+				check = PyList_Append(OX_saved, x_obj);
+				
+				for (long ii = 1; ii < Length; ii++){
 					//Exctract x_obj, convert to int, add to C++ array;
-					x_obj = PyList_GetItem(OX_obj, ii);
-					((long *)(*(PyVarsOut + i)).Value)[ii] = (long)PyInt_AsLong(x_obj);
+					x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
+					((long *)((*(PyVarsOut + i)).Value))[0] = (long)PyInt_AsLong(x_obj);
+					check = PyList_Append(OX_saved, x_obj);
 				}
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_obj);
-				//add list OX_obj as OX to python, now python code has OX defined, same with OY
+				PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
 				Py_CLEAR(OX_obj);
+				Py_CLEAR(OX_saved);
 				Py_CLEAR(x_obj);
 
 
@@ -311,19 +318,27 @@ namespace YuryLibrary {
 
 			case 4:{//if list of doubles
 
-				OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);
-				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize
+				OX_obj = PyDict_GetItemString(main, (*(PyVarsOut + i)).Name);//load list obj, note that list is removed from dictionary after this command
+				Length = (*(PyVarsOut + i)).ValueLength;//get length
+				OX_saved = PyList_New(Length);//make a new list that will be equal to OX_obj, we will load it back to dictionary after
 
-				//fill OX_obj
-				Length = (*(PyVarsOut + i)).ValueLength;
-
-				for (long ii = 0; ii < Length; ii++){
+				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize, this item is removed from OX_obj
+				((double *)((*(PyVarsOut + i)).Value))[0] = (double)PyFloat_AsDouble(x_obj); //start to fill output
+				check = PyList_Append(OX_saved, x_obj);//append new list with item extracted
+				
+				//now, after all objects initialized we can continue in loop
+				for (long ii = 1; ii < Length; ii++){
 					//Exctract x_obj, convert to int, add to C++ array;
 					x_obj = PyList_GetItem(OX_obj, ii);
 					((double *)((*(PyVarsOut + i)).Value))[ii] = (double)PyFloat_AsDouble(x_obj);
+					check = PyList_Append(OX_saved, x_obj);
 				}
-				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_obj);
+				checklist = PyList_Check(OX_saved);
+				std::cout << "OX, is it a list? " << checklist << std::endl;
+				PyDict_DelItemString(main, (*(PyVarsOut + i)).Name); //remove now empty object from dictionary
+				PyDict_SetItemString(main, (*(PyVarsOut + i)).Name, OX_saved);//add it back with saved values
 				Py_CLEAR(OX_obj);
+				Py_CLEAR(OX_saved);
 				Py_CLEAR(x_obj);
 
 				break;
