@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
+#include <thread>
 
 namespace YuryLibrary{
 
@@ -37,15 +38,20 @@ namespace YuryLibrary{
 		~PyRunT();
 		PyVariableT *PyVarsOut;
 		void RunPythonScript();
+		std::thread RunPythonScriptThread();
 		void RunPythonScript(const char *importcode);
 		void RunPythonScript(const int clearflag);
 		PyVariableT *PyVarsInput;
 		void setFile(char *PyfileName);
+		void VarConvertToPython();
+		void VarConvertFromPython();
+		std::thread VarConvertFromPythonThread();
+
 	private:
 		int InVarSize, OutVarSize;
 		char *file;
 		std::string ExePath();
-		void VarConvertToPython(PyObject *main);
-		void VarConvertFromPython(PyObject *main);
+		PyObject *main_module, *main_dict;
+		PyObject *sys_module, *sys_dict;
 	};
 }

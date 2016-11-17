@@ -1,11 +1,45 @@
 import numpy
 import scipy.optimize as optimize
-import matplotlib.pylab as plt
+import gc
+import matplotlib.pylab
 from scipy.integrate import quad
 from scipy.stats import gamma as gamma
 from numpy import linspace as linspace
-from matplotlib.pyplot import*
+#import matplotlib.pyplot as pyplot
 from scipy.optimize import curve_fit as curve_fit
+#import plotly.plotly as py
+
+
+
+def delete_module(modname, paranoid=None):
+    from sys import modules
+    try:
+        thismod = modules[modname]
+    except KeyError:
+        raise ValueError(modname)
+    these_symbols = dir(thismod)
+    if paranoid:
+        try:
+            paranoid[:]  # sequence support
+        except:
+            raise ValueError('must supply a finite list for paranoid')
+        else:
+            these_symbols = paranoid[:]
+    del modules[modname]
+    for mod in modules.values():
+        try:
+            delattr(mod, modname)
+        except AttributeError:
+            pass
+        if paranoid:
+            for symbol in these_symbols:
+                if symbol[:2] == '__':  # ignore special symbols
+                    continue
+                try:
+                    delattr(mod, symbol)
+                except AttributeError:
+                    pass
+
 
 #print "I am here1"
 print "Generating with SIZE=",SIZE,"Shape=",alpha,"Bound=",loc,"Scale=",beta
@@ -71,28 +105,46 @@ OY=[gamma.pdf(x,alpha, loc=loc, scale=beta) for x in OX]
 #OX=array(OX)
 
 
+fig=matplotlib.pylab.figure()
 
-subplot(211)
-plot(OX,OY,label="Molar Mass Gamma Distribution")
+sub1=fig.add_subplot(211)
+sub1.plot(OX,OY,label="Molar Mass Gamma Distribution")
 
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+sub1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=1, mode="expand", borderaxespad=0.)
-ylabel('Probability Density')
-xlabel('Molar Mass')
 
-subplot(212)
+		   
+sub1.set_ylabel('Probability Density')
+sub1.set_xlabel('Molar Mass')
+
+
+
+sub2=fig.add_subplot(212)
 #plot(OX,OY,label="Molar Mass Gamma Distribution")
-plot(MolarMasses,MassFractions,label="Weight Fractions")
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=1, mode="expand", borderaxespad=0.)
-ylabel('Weight Fractions')
-xlabel('Molar Mass')
-show()
+sub2.plot(MolarMasses,MassFractions,label="Weight Fractions")
+sub2.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+		   ncol=1, mode="expand", borderaxespad=0.)
+sub2.set_ylabel('Weight Fractions')
+sub2.set_xlabel('Molar Mass')
+matplotlib.pylab.savefig('foo.png')
 
+matplotlib.pylab.show(fig)
+
+matplotlib.pylab.close(fig)
+fig.clf
+del fig
+gc.collect()
+delete_module("matplotlib.pylab")
+'''
+#plot_url = py.plot_mpl(fig, filename='Molarmasses')
+#del fig
+
+#wait(5)
 
 #print "Mass Fractions Size=",len(MassFractions),"MassFractions"
 #print MassFractions	
 #print "Mol Fractions"
 #print MolFractions
 #print MolarMasses
-#print "data", data
+print "data", data
+'''

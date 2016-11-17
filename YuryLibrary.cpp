@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "YuryLibrary.h"
-
+#include <Windows.h>
 
 
 /*
@@ -202,6 +202,7 @@ int main()
 	}
 	*/
 //	delete PCont;
+
 const int PointsAmount = 100;
 
 	std::cout << "generating sample using python, note it is not changing saved gamma parameters, to set/save the parameters use setGammaParameters function" << std::endl;
@@ -236,18 +237,27 @@ const int PointsAmount = 100;
 	(*RP).PyVarsOut[2].set(MassFrac, "MassFractions", 4, SIZE);
 	(*RP).PyVarsOut[3].set(MolFrac, "MolFractions", 4, SIZE);
 
-	(*RP).RunPythonScript();
+	RP->VarConvertToPython();
+
+	RP->RunPythonScript();
+
+//	std::thread RunningPyThread=RP->RunPythonScriptThread();
+//	RunningPyThread.join();
+
+	std::thread ConvertingThread = RP->VarConvertFromPythonThread();
+	ConvertingThread.join();
+//	RP->VarConvertFromPython();
 
 	//(*RP).RunPythonScript(str);
 	//for (int i = 0; i < SIZE; std::cout << MolFrac[i++] << " ");
-
+//	Sleep(2000);
 	(*RP).setFile("MolarMassGenerating_Capi_clearVars.py");//file to clear vars
 	std::cout << "ready to clear vars";
 	(*RP).RunPythonScript(0);//running file to clear vars from dict
 
 	delete RP;
 
-
+	
 	//Py_Finalize();
 	return 0;
 }

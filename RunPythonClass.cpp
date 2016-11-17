@@ -37,6 +37,17 @@ namespace YuryLibrary {
 		OutVarSize = OutputVarSize;
 		file = Pyfilename;
 
+		/* Setup the __main__ module for us to use */
+		main_module = PyImport_ImportModule("__main__");
+		main_dict = PyModule_GetDict(main_module);
+
+		/* Fetch the sys module */
+		sys_module = PyImport_ImportModule("sys");
+		sys_dict = PyModule_GetDict(sys_module);
+		/* Attach the sys module into the __main__ namespace */
+		PyDict_SetItemString(main_dict, "sys", sys_module);
+
+
 	}
 
 	PyRunT::~PyRunT()
@@ -60,22 +71,11 @@ namespace YuryLibrary {
 	}
 
 	void PyRunT::RunPythonScript(){
-		Py_Initialize();
-		PyObject *main_module, *main_dict;
-		PyObject *sys_module, *sys_dict;
+//		Py_Initialize();
 
-		/* Setup the __main__ module for us to use */
-		main_module = PyImport_ImportModule("__main__");
-		main_dict = PyModule_GetDict(main_module);
-
-		/* Fetch the sys module */
-		sys_module = PyImport_ImportModule("sys");
-		sys_dict = PyModule_GetDict(sys_module);
-		/* Attach the sys module into the __main__ namespace */
-		PyDict_SetItemString(main_dict, "sys", sys_module);
 
 		//Passing all variables to python
-		VarConvertToPython(main_dict);
+//		VarConvertToPython();
 
 
 
@@ -111,8 +111,11 @@ namespace YuryLibrary {
 
 		PyRun_SimpleFile(PyFile_AsFile(PFO), filename);
 		//Retrieving output from python
-		VarConvertFromPython(main_dict);
+//		VarConvertFromPython();
 		//Py_Finalize();
+	}
+	std::thread PyRunT::RunPythonScriptThread() {
+		return std::thread([=] { RunPythonScript(); });
 	}
 	void PyRunT::RunPythonScript(const int clearflag){
 
@@ -145,22 +148,22 @@ namespace YuryLibrary {
 	}
 
 	void PyRunT::RunPythonScript(const char *importcode){
-
+		/*
 		PyObject *main_module, *main_dict;
 		PyObject *sys_module, *sys_dict;
 
-		/* Setup the __main__ module for us to use */
+		// Setup the __main__ module for us to use 
 		main_module = PyImport_ImportModule("__main__");
 		main_dict = PyModule_GetDict(main_module);
 
-		/* Fetch the sys module */
+		// Fetch the sys module
 		sys_module = PyImport_ImportModule("sys");
 		sys_dict = PyModule_GetDict(sys_module);
-		/* Attach the sys module into the __main__ namespace */
+		// Attach the sys module into the __main__ namespace 
 		PyDict_SetItemString(main_dict, "sys", sys_module);
-
+		*/
 		//Passing all variables to python
-		VarConvertToPython(main_dict);
+	//	VarConvertToPython();
 
 
 		
@@ -172,12 +175,12 @@ namespace YuryLibrary {
 		PyRun_SimpleString(importcode);
 
 		//Retrieving output from python
-		VarConvertFromPython(main_dict);
+	//	VarConvertFromPython();
 
 
 	}
 
-	void PyRunT::VarConvertToPython(PyObject *main){
+	void PyRunT::VarConvertToPython(){
 
 		//function will update main dictionary 
 
@@ -195,7 +198,7 @@ namespace YuryLibrary {
 			{
 			case 1:{
 				intPTR = static_cast<long*>((*(PyVarsInput + i)).Value);  //say that Value is actually pointing to integer
-				PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), PyInt_FromLong(*intPTR));
+				PyDict_SetItemString(main_dict, std::string((*(PyVarsInput + i)).Name).c_str(), PyInt_FromLong(*intPTR));
 				break;
 			}
 			case 2:{
@@ -213,7 +216,7 @@ namespace YuryLibrary {
 					check = PyList_Append(OX_obj, x_obj);
 				}
 				//add list OX_obj as OX to python, now python code has OX defined, same with OY
-				PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), OX_obj);
+				PyDict_SetItemString(main_dict, std::string((*(PyVarsInput + i)).Name).c_str(), OX_obj);
 				Py_CLEAR(OX_obj);
 				Py_CLEAR(x_obj);
 
@@ -222,7 +225,7 @@ namespace YuryLibrary {
 			}
 			case 3:{//if double
 				doublePTR = static_cast<double*>((*(PyVarsInput + i)).Value);  //say that Value is actually pointing to double
-				PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), PyFloat_FromDouble(*doublePTR));
+				PyDict_SetItemString(main_dict, std::string((*(PyVarsInput + i)).Name).c_str(), PyFloat_FromDouble(*doublePTR));
 				break;
 			}
 
@@ -241,7 +244,7 @@ namespace YuryLibrary {
 					check = PyList_Append(OX_obj, x_obj);
 				}
 				//add list OX_obj as OX to python, now python code has OX defined, same with OY
-				PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), OX_obj);
+				PyDict_SetItemString(main_dict, std::string((*(PyVarsInput + i)).Name).c_str(), OX_obj);
 				Py_CLEAR(OX_obj);
 				Py_CLEAR(x_obj);
 
@@ -249,7 +252,7 @@ namespace YuryLibrary {
 			}
 			case 5:{//if char*
 				charPTR = static_cast<char*>((*(PyVarsInput + i)).Value);  //say that Value is actually pointing to char
-				PyDict_SetItemString(main, std::string((*(PyVarsInput + i)).Name).c_str(), PyString_FromString(charPTR));
+				PyDict_SetItemString(main_dict, std::string((*(PyVarsInput + i)).Name).c_str(), PyString_FromString(charPTR));
 				break;
 
 			}
@@ -262,7 +265,7 @@ namespace YuryLibrary {
 		}
 	}
 
-	void PyRunT::VarConvertFromPython(PyObject *main){
+	void PyRunT::VarConvertFromPython(){
 
 
 		//function will update main dictionary 
@@ -272,9 +275,11 @@ namespace YuryLibrary {
 		PyObject *OX_obj;// *OX_saved;
 		PyObject *x_obj;
 		PyObject *DictCopy;
+		DictCopy = PyDict_Copy(main_dict);
 
 		for (long i = 0; i < OutVarSize; i++){
-			DictCopy = PyDict_Copy(main);
+			std::cout << "in convert interations?";
+
 			switch ((*(PyVarsOut + i)).Type)//1- integer,2-array of int,3-double,4-array of double,5-char
 			{
 			case 1:{
@@ -317,10 +322,11 @@ namespace YuryLibrary {
 			}
 
 			case 4:{//if list of doubles
-				DictCopy = PyDict_Copy(main);
-	//			std::cout << "in convert2?";
+		//		DictCopy = PyDict_Copy(main);
+				std::cout << "in convert2?";
 				OX_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);//load list obj, note that list is removed from dictionary after this command
 				Length = (*(PyVarsOut + i)).ValueLength;//get length
+		
 	//			OX_saved = PyList_New(Length);//make a new list that will be equal to OX_obj, we will load it back to dictionary after
 
 				x_obj = PyList_GetItem(OX_obj, 0); //just to initialize, this item is removed from OX_obj
@@ -344,7 +350,7 @@ namespace YuryLibrary {
 				Py_CLEAR(x_obj);
 				//Py_CLEAR(DictCopy);
 				
-
+				std::cout << "in convert3?";
 				break;
 			}
 			case 5:{//if char*
@@ -363,7 +369,11 @@ namespace YuryLibrary {
 				std::cout << "Unknown type when trying to convert to python";
 				break; }
 			}
-			PyDict_Clear(DictCopy);
+			
 		}
+		PyDict_Clear(DictCopy);
+	}
+	std::thread PyRunT::VarConvertFromPythonThread() {
+		return std::thread([=] { VarConvertFromPython(); std::cout << "converting finished"; });
 	}
 }
