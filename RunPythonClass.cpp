@@ -269,7 +269,6 @@ namespace YuryLibrary {
 
 
 		//function will update main dictionary 
-		std::cout << "in convert?";
 		long Length;
 	//	int checklist,check;
 		PyObject *OX_obj;// *OX_saved;
@@ -278,7 +277,6 @@ namespace YuryLibrary {
 		DictCopy = PyDict_Copy(main_dict);
 
 		for (long i = 0; i < OutVarSize; i++){
-			std::cout << "in convert interations?";
 
 			switch ((*(PyVarsOut + i)).Type)//1- integer,2-array of int,3-double,4-array of double,5-char
 			{
@@ -323,7 +321,7 @@ namespace YuryLibrary {
 
 			case 4:{//if list of doubles
 		//		DictCopy = PyDict_Copy(main);
-				std::cout << "in convert2?";
+
 				OX_obj = PyDict_GetItemString(DictCopy, (*(PyVarsOut + i)).Name);//load list obj, note that list is removed from dictionary after this command
 				Length = (*(PyVarsOut + i)).ValueLength;//get length
 		
@@ -350,7 +348,7 @@ namespace YuryLibrary {
 				Py_CLEAR(x_obj);
 				//Py_CLEAR(DictCopy);
 				
-				std::cout << "in convert3?";
+
 				break;
 			}
 			case 5:{//if char*
