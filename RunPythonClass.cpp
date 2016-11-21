@@ -31,8 +31,8 @@ namespace YuryLibrary {
 
 
 	PyRunT::PyRunT(int InputVarsSize, char *Pyfilename, int OutputVarSize) :PyVarsInput(new PyVariableT[InputVarsSize]), PyVarsOut(new PyVariableT[OutputVarSize])
-	{
-		Py_Initialize();
+	{	
+		if (!Py_IsInitialized()) Py_Initialize();
 		InVarSize = InputVarsSize;
 		OutVarSize = OutputVarSize;
 		file = Pyfilename;
