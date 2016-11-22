@@ -369,7 +369,7 @@ namespace YuryLibrary {
 			}
 			
 		}
-		PyDict_Clear(DictCopy);
+		//PyDict_Clear(DictCopy);
 	}
 	std::thread PyRunT::VarConvertFromPythonThread() {
 		return std::thread([=] { VarConvertFromPython(); std::cout << "converting finished"; });
